@@ -1,3 +1,8 @@
 {
-  "cSpell.words": ["pikachu"]
+  "cSpell.words": [
+    "microtask",
+    "pikachu",
+    "pokemons"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/3.24.2"
 }

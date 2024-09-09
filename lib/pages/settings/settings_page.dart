@@ -21,6 +21,12 @@ class SettingsPage extends StatelessWidget {
               context.push('/setting_theme');
             },
           ),
+          TextButton(
+            onPressed: () {
+              context.push('/sample');
+            },
+            child: const Text('go to sample page'),
+          )
         ],
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pikachu/pages/detail/detail_page.dart';
 import 'package:pikachu/pages/home/home_page.dart';
 import 'package:pikachu/pages/settings/settings_page.dart';
 import 'package:pikachu/pages/settings/theme_mode_selection_page.dart';
@@ -13,13 +12,6 @@ final goRouter = GoRouter(
       name: 'home',
       builder: (context, state) {
         return const HomePage();
-      },
-    ),
-    GoRoute(
-      path: '/detail',
-      name: 'detail',
-      builder: (context, state) {
-        return const DetailPage();
       },
     ),
     GoRoute(
