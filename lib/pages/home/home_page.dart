@@ -20,7 +20,7 @@ class HomePage extends HookConsumerWidget {
       Future.microtask(() {
         final currentLength = pokemonsAsyncValue.value?.length ?? 0;
         if (currentLength == 0) {
-          pokemonNotifier.fetchPokemons(
+          pokemonNotifier.addPokemons(
             List<int>.generate(10, (index) => index + 1),
           );
         }
@@ -28,48 +28,69 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, [pokemonsAsyncValue]);
 
+    final isFavoriteMode = useState(false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () async {
+              isFavoriteMode.value = !isFavoriteMode.value;
+              await pokemonNotifier.toggleFavoriteMode(isFavoriteMode.value);
+            },
+            icon: const Icon(Icons.auto_awesome_outlined),
+          ),
+        ],
       ),
-      body: Center(
-        child: pokemonsAsyncValue.when(
-          data: (pokemons) {
-            return NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scrollNotification) {
-                if (scrollNotification is ScrollEndNotification) {
-                  final before = scrollNotification.metrics.extentBefore;
-                  final max = scrollNotification.metrics.maxScrollExtent;
-                  if (before == max) {
-                    final currentLength = pokemonsAsyncValue.value?.length ?? 0;
-                    final nextIndex = currentLength + 1;
+      body: Column(
+        children: [
+          Expanded(
+            child: pokemonsAsyncValue.when(
+              data: (pokemons) {
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollNotification) {
+                    if (isFavoriteMode.value) return false;
 
-                    if (nextIndex <= 1010) {
-                      final lastIndex = nextIndex + 9;
-                      final upperLimit = lastIndex <= 1010 ? lastIndex : 1010;
-                      pokemonNotifier.fetchPokemons(
-                        List<int>.generate(upperLimit - nextIndex + 1,
-                            (index) => nextIndex + index),
-                      );
+                    if (scrollNotification is ScrollEndNotification) {
+                      final before = scrollNotification.metrics.extentBefore;
+                      final max = scrollNotification.metrics.maxScrollExtent;
+                      if (before == max) {
+                        final currentLength =
+                            pokemonsAsyncValue.value?.length ?? 0;
+                        final nextIndex = currentLength + 1;
+
+                        if (nextIndex <= 1010) {
+                          final lastIndex = nextIndex + 9;
+                          final upperLimit =
+                              lastIndex <= 1010 ? lastIndex : 1010;
+                          pokemonNotifier.addPokemons(
+                            List<int>.generate(
+                              upperLimit - nextIndex + 1,
+                              (index) => nextIndex + index,
+                            ),
+                          );
+                        }
+                      }
                     }
-                  }
-                }
-                return false;
+                    return false;
+                  },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: pokemons.length,
+                    itemBuilder: (context, index) {
+                      final id = pokemons.keys.elementAt(index);
+                      return _ListItem(pokemon: pokemons[id]);
+                    },
+                  ),
+                );
               },
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: pokemons.length,
-                itemBuilder: (context, index) {
-                  final id = index + 1;
-                  return _ListItem(pokemon: pokemons[id]);
-                },
-              ),
-            );
-          },
-          loading: () => const CircularProgressIndicator(),
-          error: (err, stack) => Text('err: $err'),
-        ),
+              loading: () => const CircularProgressIndicator(),
+              error: (err, stack) => Text('err: $err'),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
     );

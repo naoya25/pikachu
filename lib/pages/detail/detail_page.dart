@@ -22,6 +22,12 @@ class DetailPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('ポケモンゲットだぜ'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.star),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
