@@ -37,8 +37,23 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              isFavoriteMode.value = !isFavoriteMode.value;
-              await pokemonNotifier.toggleFavoriteMode(isFavoriteMode.value);
+              // TabBarView使おう
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return _BottomSheet(
+                    isFavorite: isFavoriteMode.value,
+                    onTap: () async {
+                      isFavoriteMode.value = !isFavoriteMode.value;
+                      await pokemonNotifier
+                          .toggleFavoriteMode(isFavoriteMode.value);
+
+                      if (!context.mounted) return;
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              );
             },
             icon: const Icon(Icons.auto_awesome_outlined),
           ),
@@ -136,6 +151,66 @@ class _ListItem extends StatelessWidget {
           }),
         );
       },
+    );
+  }
+}
+
+class _BottomSheet extends StatelessWidget {
+  final bool isFavorite;
+  final VoidCallback onTap;
+
+  const _BottomSheet({
+    required this.isFavorite,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    String menuTitle = isFavorite ? '「すべて」表示に切り替え' : '「お気に入り」表示に切り替え';
+    String menuSubtitle =
+        isFavorite ? 'すべてのポケモンが表示されます' : 'お気に入りに登録したポケモンのみが表示されます';
+
+    return Container(
+      height: 300,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
+      child: Column(
+        children: [
+          Container(
+            height: 5,
+            width: 30,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.grey,
+            ),
+          ),
+          Text(
+            menuSubtitle,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.swap_horiz),
+            title: Text(menuTitle),
+            subtitle: Text(menuSubtitle),
+            onTap: onTap,
+          ),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+            ),
+            child: const Text('キャンセル'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 }

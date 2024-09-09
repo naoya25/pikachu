@@ -1,8 +1,8 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-class FavoritePokemonsDb {
-  static Future<Database> openDb() async {
+class FavoritePokemonsDB {
+  static Future<Database> openDB() async {
     return await openDatabase(
       join(await getDatabasesPath(), 'favorite_pokemons.db'),
       onCreate: (db, version) {
