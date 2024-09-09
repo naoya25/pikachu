@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pikachu/models/favorite_pokemon.dart';
 import 'package:pikachu/models/pokemon.dart';
+import 'package:pikachu/providers/favorites_provider.dart';
 import 'package:pikachu/utils/colors.dart';
 
-class DetailPage extends StatelessWidget {
+class DetailPage extends ConsumerWidget {
   final Pokemon? pokemon;
-  const DetailPage({super.key, required this.pokemon});
+
+  const DetailPage({
+    super.key,
+    required this.pokemon,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (pokemon == null) {
       return Scaffold(
         appBar: AppBar(
@@ -18,14 +25,26 @@ class DetailPage extends StatelessWidget {
       );
     }
 
+    final favoritePokemons = ref.watch(favoritesNotifierProvider);
+    final favoriteNotifier = ref.read(favoritesNotifierProvider.notifier);
+    final isFavorite =
+        favoritePokemons.value?.any((fav) => fav.pokemonId == pokemon!.id) ??
+            false;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ポケモンゲットだぜ'),
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.star),
+            onPressed: () async {
+              await favoriteNotifier.toggle(
+                FavoritePokemon(pokemonId: pokemon!.id),
+              );
+            },
+            icon: isFavorite
+                ? const Icon(Icons.star, color: Colors.orangeAccent)
+                : const Icon(Icons.star_outline),
           ),
         ],
       ),

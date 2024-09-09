@@ -1,5 +1,6 @@
 import 'package:pikachu/models/favorite_pokemon.dart';
 import 'package:pikachu/models/pokemon.dart';
+import 'package:pikachu/providers/favorites_provider.dart';
 import 'package:pikachu/repositories/pokemon.dart';
 import 'package:pikachu/utils/constant_value.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -14,16 +15,13 @@ class PokemonNotifier extends _$PokemonNotifier {
   }
 
   Future<void> toggleFavoriteMode(bool isFavoriteMode) async {
-    List<FavoritePokemon> favMock = [
-      FavoritePokemon(pokemonId: 1),
-      FavoritePokemon(pokemonId: 4),
-      FavoritePokemon(pokemonId: 7),
-    ];
+    final List<FavoritePokemon> favoritePokemons =
+        ref.read(favoritesNotifierProvider).value ?? [];
 
     final Map<int, Pokemon> newPokemons;
     if (isFavoriteMode) {
       newPokemons = await getPokemons(
-        favMock.map((f) => f.pokemonId).toList(),
+        favoritePokemons.map((f) => f.pokemonId).toList(),
       );
     } else {
       newPokemons = await getPokemons(

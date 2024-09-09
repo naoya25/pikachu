@@ -16,10 +16,12 @@ class HomePage extends HookConsumerWidget {
     final pokemonNotifier = ref.read(pokemonNotifierProvider.notifier);
     final pokemonsAsyncValue = ref.watch(pokemonNotifierProvider);
 
+    final isFavoriteMode = useState(false);
+
     useEffect(() {
       Future.microtask(() {
         final currentLength = pokemonsAsyncValue.value?.length ?? 0;
-        if (currentLength == 0) {
+        if (currentLength == 0 && !isFavoriteMode.value) {
           pokemonNotifier.addPokemons(
             List<int>.generate(10, (index) => index + 1),
           );
@@ -28,8 +30,6 @@ class HomePage extends HookConsumerWidget {
       return null;
     }, [pokemonsAsyncValue]);
 
-    final isFavoriteMode = useState(false);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -37,7 +37,7 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              // TabBarView使おう
+              // FIXME: TabBarView使おう
               showModalBottomSheet(
                 context: context,
                 builder: (BuildContext context) {
