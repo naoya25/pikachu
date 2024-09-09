@@ -6,5 +6,5 @@ https://zenn.dev/sugitlab/books/flutter_poke_app_handson
 
 # 完成
 
-![product_img1](https://github.com/naoya25/pikachu/blob/main/product_img1.png)
-![product_img2](https://github.com/naoya25/pikachu/blob/main/product_img2.png)
+<img src="https://github.com/naoya25/pikachu/blob/main/product_img1.png" alt="product_img1" width="400"/>
+<img src="https://github.com/naoya25/pikachu/blob/main/product_img2.png" alt="product_img2" width="400"/>
