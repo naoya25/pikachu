@@ -15,20 +15,42 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final pokemonNotifier = ref.read(pokemonNotifierProvider.notifier);
     final pokemonsAsyncValue = ref.watch(pokemonNotifierProvider);
-
     final isFavoriteMode = useState(false);
 
     useEffect(() {
-      Future.microtask(() {
-        final currentLength = pokemonsAsyncValue.value?.length ?? 0;
-        if (currentLength == 0 && !isFavoriteMode.value) {
-          pokemonNotifier.addPokemons(
-            List<int>.generate(10, (index) => index + 1),
-          );
-        }
-      });
+      if (pokemonsAsyncValue.value?.isEmpty == true && !isFavoriteMode.value) {
+        pokemonNotifier
+            .addPokemons(List<int>.generate(10, (index) => index + 1));
+      }
       return null;
-    }, [pokemonsAsyncValue]);
+    }, [pokemonsAsyncValue, isFavoriteMode.value]);
+
+    // スクロールでデータの追加を行うかを判定する関数
+    bool shouldLoadMore(ScrollNotification scrollNotification) {
+      if (isFavoriteMode.value) return false;
+
+      if (scrollNotification is ScrollEndNotification) {
+        final before = scrollNotification.metrics.extentBefore;
+        final max = scrollNotification.metrics.maxScrollExtent;
+        if (before == max) {
+          final currentLength = pokemonsAsyncValue.value?.length ?? 0;
+          final nextIndex = currentLength + 1;
+
+          if (nextIndex <= 1010) {
+            final lastIndex = nextIndex + 9;
+            final upperLimit = lastIndex <= 1010 ? lastIndex : 1010;
+            pokemonNotifier.addPokemons(
+              List<int>.generate(
+                upperLimit - nextIndex + 1,
+                (index) => nextIndex + index,
+              ),
+            );
+            return true;
+          }
+        }
+      }
+      return false;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +59,6 @@ class HomePage extends HookConsumerWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              // FIXME: TabBarView使おう
               showModalBottomSheet(
                 context: context,
                 builder: (BuildContext context) {
@@ -47,7 +68,6 @@ class HomePage extends HookConsumerWidget {
                       isFavoriteMode.value = !isFavoriteMode.value;
                       await pokemonNotifier
                           .toggleFavoriteMode(isFavoriteMode.value);
-
                       if (!context.mounted) return;
                       Navigator.pop(context);
                     },
@@ -65,32 +85,7 @@ class HomePage extends HookConsumerWidget {
             child: pokemonsAsyncValue.when(
               data: (pokemons) {
                 return NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scrollNotification) {
-                    if (isFavoriteMode.value) return false;
-
-                    if (scrollNotification is ScrollEndNotification) {
-                      final before = scrollNotification.metrics.extentBefore;
-                      final max = scrollNotification.metrics.maxScrollExtent;
-                      if (before == max) {
-                        final currentLength =
-                            pokemonsAsyncValue.value?.length ?? 0;
-                        final nextIndex = currentLength + 1;
-
-                        if (nextIndex <= 1010) {
-                          final lastIndex = nextIndex + 9;
-                          final upperLimit =
-                              lastIndex <= 1010 ? lastIndex : 1010;
-                          pokemonNotifier.addPokemons(
-                            List<int>.generate(
-                              upperLimit - nextIndex + 1,
-                              (index) => nextIndex + index,
-                            ),
-                          );
-                        }
-                      }
-                    }
-                    return false;
-                  },
+                  onNotification: shouldLoadMore,
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: pokemons.length,
@@ -101,8 +96,8 @@ class HomePage extends HookConsumerWidget {
                   ),
                 );
               },
-              loading: () => const CircularProgressIndicator(),
-              error: (err, stack) => Text('err: $err'),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Text('Error: $err'),
             ),
           ),
         ],
@@ -173,10 +168,7 @@ class _BottomSheet extends StatelessWidget {
     return Container(
       height: 300,
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         children: [
           Container(
@@ -187,12 +179,10 @@ class _BottomSheet extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
+          const SizedBox(height: 16),
           Text(
             menuSubtitle,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           ListTile(
             leading: const Icon(Icons.swap_horiz),

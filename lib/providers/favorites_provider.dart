@@ -1,5 +1,6 @@
 import 'package:pikachu/db/favorite_pokemons.dart';
 import 'package:pikachu/models/favorite_pokemon.dart';
+import 'package:pikachu/providers/pokemon_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'favorites_provider.g.dart';
@@ -25,16 +26,24 @@ class FavoritesNotifier extends _$FavoritesNotifier {
   }
 
   Future<void> add(FavoritePokemon fav) async {
+    final pokemonNotifier = ref.read(pokemonNotifierProvider.notifier);
+    pokemonNotifier.addPokemon(fav.pokemonId);
+
     final currentFavorites = state.value ?? [];
     await FavoritePokemonsDB.create(fav);
     state = AsyncValue.data([...currentFavorites, fav]);
   }
 
   Future<void> delete(FavoritePokemon fav) async {
+    final pokemonNotifier = ref.read(pokemonNotifierProvider.notifier);
+    pokemonNotifier.deletePokemon(fav.pokemonId);
+
     final currentFavorites = state.value ?? [];
     await FavoritePokemonsDB.delete(fav.pokemonId);
     state = AsyncValue.data(
-      currentFavorites.where((item) => item.pokemonId != fav.pokemonId).toList(),
+      currentFavorites
+          .where((item) => item.pokemonId != fav.pokemonId)
+          .toList(),
     );
   }
 }
