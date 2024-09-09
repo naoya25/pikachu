@@ -1,16 +1,10 @@
 # pikachu
 
-A new Flutter project.
+https://zenn.dev/sugitlab/books/flutter_poke_app_handson
 
-## Getting Started
+この記事を参考に実装しました
 
-This project is a starting point for a Flutter application.
+# 完成
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![product_img1](https://github.com/naoya25/pikachu/blob/main/product_img1.png)
+![product_img2](https://github.com/naoya25/pikachu/blob/main/product_img2.png)
